@@ -1,0 +1,46 @@
+version: '3'
+
+services:
+  piassava-gateway:
+    build:
+      context: piassava-gateway/
+      dockerfile: Dockerfile
+    container_name: piassava-gateway
+    restart: unless-stopped
+    ports:
+      - "8080:3000"
+    networks:
+      - isolation-network
+
+  piassava-weight-manager:
+    build:
+        context: piassava-weight-manager
+        dockerfile: Dockerfile
+    container_name: piassava-weight-manager
+    restart: unless-stopped
+    ports:
+        - "8081:3001"
+    networks:
+        - isolation-network
+
+  piassava-db:
+    image: postgres:9.3
+    container_name: piassava-db
+    restart: unless-stopped
+    env_file: .env
+    environment:
+        - POSTGRES_USER=$POSTGRES_USER
+        - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+        - POSTGRES_DB=$POSTGRES_DB   
+    networks:
+        - isolation-network 
+    volumes:
+        - psql_data:/var/lib/postgresql/data
+    ports:
+        - "5432:5432" 
+
+networks:
+    isolation-network:
+        driver: bridge
+volumes:
+    psql_data:   
